@@ -1,0 +1,7 @@
+{
+	"test_type": "non-cycling",
+	"urls": [{ "url": "http://vanillawebsite.nerderylabs.com/"}],
+	"duration": 60,
+	"initial": 0,
+	"total": 1000,
+}

@@ -1,0 +1,53 @@
+environment:
+  CURRENT_VERSION: 0.1.0
+  AZURE_SUBSCRIPTION_NAME: ksykora - Visual Studio Premium
+  AZURE_LOGIN: vanillawebsite@kensykoranerdery.onmicrosoft.com
+  AZURE_PASSWORD:
+    secure: HKeItoWuGd0AHb1efBOybw==
+  BUILD_NUMBER: $(APPVEYOR_BUILD_NUMBER)
+  BUILD_NAME: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_BUILD_VERSION)-$(APPVEYOR_BUILD_NUMBER)
+  SELENIUM_STARTING_URL: http://vanillawebsite-uitest.azurewebsites.net/
+  #,{\"platform\":\"WIN8_1\",\"os\":\"Windows 2012 R2\",\"browser\":\"firefox\",\"url\":\"sauce-ondemand:?os=Windows 2012 R2&browser=firefox&browser-version=31\",\"browser-version\":\"31\"}
+  BROWSERS: "[{\"platform\":\"WIN8\",\"os\":\"Windows 2012\",\"browser\":\"firefox\",\"url\":\"sauce-ondemand:?os=Windows 2012&browser=firefox&browser-version=29\",\"browser-version\":\"29\"}]"
+  LOADERIO_API_KEY: 
+    secure: l+MhcBDBCwpl227xsym3AENEoeNik8UWNBqCBUZdQe4QgaU4SIFDuqgGegAzEA0b
+  SAUCELABS_ACCOUNT_NAME: kensykora
+  SAUCELABS_ACCOUNT_KEY:
+    secure: mAuS/st1D5+C0rTy/3qSEtlVmlkMToP0M70Eh5xZ4XDwNRtf0QdyUgIaSMA6G7bw  
+version: 0.1.0-{build}
+branches:
+  only:
+    - master
+    - develop
+    - release/*
+    - feature/*
+configuration:
+  - Debug
+  - Release
+cache:
+  - packages -> **\packages.config 
+after_build:
+  - msbuild Website/Website.csproj /t:Package /p:PackageLocation=website.%CONFIGURATION%.zip /p:PackageAsSingleFile=True
+  - ps: Push-AppveyorArtifact Website/website.${env:Configuration}.zip -Type WebDeployPackage
+before_test:
+  - ps: |
+      if($env:CONFIGURATION -eq 'Debug') {
+        .\tools/publish-azure.ps1 .\Website\website.${env:CONFIGURATION}.zip -WebsiteName "vanillawebsite-uitest" -SubscriptionName "${env:AZURE_SUBSCRIPTION_NAME}" -Verbose
+        .\tools\ui-test.ps1 -TestContainer "${env:APPVEYOR_BUILD_FOLDER}\Website.Tests.UI\bin\Debug\Website.Tests.UI.dll"
+        .\tools\load-test.ps1 -Name "Load test for ${env:BUILD_NAME}" -HostName "vanillawebsite-uitest.azurewebsites.net" -PrimeUrl "http://vanillawebsite-uitest.azurewebsites.net/"
+      }
+test:
+  categories:
+    except:
+      - UI
+deploy:
+  provider: WebDeploy
+  server: https://vanillawebsite-dev.scm.azurewebsites.net/msdeploy.axd?site=vanillawebsite-dev
+  website: vanillawebsite-dev
+  username: $vanillawebsite-dev
+  password: 
+    secure: giEXuZmvgd6dG4V5j9Np2nxhnuTpXv/ZEpuU5Tk3DgRGcwLkgYREaatPPsjhlAsCp7zWUm5hB+Vbty/DTxB96A==
+  artifact: website.Debug.zip
+  on:
+    configuration: Debug
+
