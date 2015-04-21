@@ -19,16 +19,16 @@ namespace Website.Tests.UI
             var username = "testuser" + Guid.NewGuid().ToString().Replace("-", "");
             var password = Guid.NewGuid().ToString();
 
-            _driver.FindElement(By.LinkText("Register")).Click();
+            _driver.FindElement(By.JQuerySelector("#registerLink")).Click();
 
             _driver.FindElement(By.Id("UserName")).SendKeys(username);
             _driver.FindElement(By.Id("Password")).SendKeys(password);
             _driver.FindElement(By.Id("ConfirmPassword")).SendKeys(password);
 
-            _driver.FindElement(By.XPath("//input[@type=\"submit\"]")).Click();
+            _driver.FindElement(By.JQuerySelector("input[type=submit]")).Click();
 
             Assert.AreEqual("Hello " + username + "!",
-                _driver.FindElement(By.XPath("//*[@id=\"logoutForm\"]/ul/li[1]/a")).Text
+                _driver.FindElement(By.JQuerySelector("#logoutForm a[title=Manage]")).Text
                 );
         }
     }
