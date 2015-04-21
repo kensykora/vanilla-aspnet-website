@@ -30,12 +30,10 @@ after_build:
   - msbuild Website/Website.csproj /t:Package /p:PackageLocation=website.%CONFIGURATION%.zip /p:PackageAsSingleFile=True
   - ps: Push-AppveyorArtifact Website/website.${env:Configuration}.zip -Type WebDeployPackage
 before_test:
-  - ps: |
-      if($env:CONFIGURATION -eq 'Debug') {
-        .\tools/publish-azure.ps1 .\Website\website.${env:CONFIGURATION}.zip -WebsiteName "vanillawebsite-uitest" -SubscriptionName "${env:AZURE_SUBSCRIPTION_NAME}" -Verbose
-        .\tools\ui-test.ps1 -TestContainer "${env:APPVEYOR_BUILD_FOLDER}\Website.Tests.UI\bin\Debug\Website.Tests.UI.dll"
-        .\tools\load-test.ps1 -Name "Load test for ${env:BUILD_NAME}" -HostName "vanillawebsite-uitest.azurewebsites.net" -PrimeUrl "http://vanillawebsite-uitest.azurewebsites.net/"
-      }
+  - ps: .\tools/publish-azure.ps1 .\Website\website.${env:CONFIGURATION}.zip -WebsiteName "vanillawebsite-uitest" -SubscriptionName "${env:AZURE_SUBSCRIPTION_NAME}" -Verbose
+  - ps: .\tools\ui-test.ps1 -TestContainer "${env:APPVEYOR_BUILD_FOLDER}\Website.Tests.UI\bin\Debug\Website.Tests.UI.dll"
+  - ps: .\tools\load-test.ps1 -Name "Load test for ${env:BUILD_NAME}" -HostName "vanillawebsite-uitest.azurewebsites.net" -PrimeUrl "http://vanillawebsite-uitest.azurewebsites.net/"
+      
 test:
   categories:
     except:
