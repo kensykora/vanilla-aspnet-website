@@ -1,5 +1,5 @@
 environment:
-  CURRENT_VERSION: 0.1.0
+  CURRENT_VERSION: 0.1.1
   AZURE_SUBSCRIPTION_NAME: ksykora - Visual Studio Premium
   AZURE_LOGIN: vanillawebsite@kensykoranerdery.onmicrosoft.com
   AZURE_PASSWORD:
